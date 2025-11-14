@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Listado Total</title>
+    <style>
+        /* CONFIGURACIÓN GENERAL DEL DOCUMENTO */
+        @page { 
+            size: A4; 
+            margin: 1.3cm; 
+        }
+
+        body { 
+            font-family: DejaVu Sans, sans-serif; 
+            font-size: 8pt; /* tamaño compacto */
+            color: #333; 
+            margin: 0; 
+        }
+
+        /* ENCABEZADO */
+        h2 { 
+            text-align: center; 
+            color: #333; 
+            margin-bottom: 8px; 
+            border-bottom: 1.5px solid #bbb; 
+            padding-bottom: 4px; 
+        }
+
+        /* TABLA PRINCIPAL */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7pt;
+            margin-top: 8px;
+            table-layout: fixed; /* mantiene proporciones fijas */
+        }
+
+        th, td {
+            border: 0.5px solid #777;
+            padding: 3px 5px;
+            vertical-align: top;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            text-align: left;
+        }
+
+        th {
+            background-color: #cacaca;
+            color: #000000;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr { page-break-inside: avoid; }
+
+        /* ALINEACIONES */
+        .align-center { text-align: center !important; }
+        .align-left { text-align: left !important; }
+
+        /* ANCHOS DE COLUMNA */
+         .col-producto { width: 30%; } 
+         .col-negadas { width: 7%; text-align: center; }
+         .col-marca  { width: 14%; }
+         .col-origen { width: 22%; } 
+         .col-ref    { width: 27%; } 
+
+        /* PIE DE PÁGINA */
+        footer { 
+            position: fixed; 
+            bottom: 8px; 
+            left: 0; 
+            right: 0; 
+            text-align: center; 
+            font-size: 7.5pt; 
+            color: #888; 
+        }
+
+        /* PARA REPETIR EL ENCABEZADO EN CADA PÁGINA */
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+    </style>
+</head>
+<body>
+
+    <h2>LISTADO TOTAL DE PRODUCTOS NEGADOS</h2>
+
+
+    <table class="data-table">
+        <colgroup>
+            <col class="col-producto">
+            <col class="col-negadas">
+            <col class="col-marca">
+            <col class="col-origen">
+            <col class="col-ref">
+        </colgroup>
+
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Unidades Negadas</th>
+                <th>Marca</th>
+                <th>Origen</th>
+                <th>Referencia</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {{ report_table_html | safe }}
+        </tbody>
+    </table>
+
+    <footer>
+        <p>Reporte generado automáticamente - {{ fecha_actual }}</p>
+    </footer>
+
+</body>
+</html>
