@@ -11,8 +11,9 @@ import requests
 import json
 import plotly.express as px
 from io import BytesIO
+from datetime import datetime
 #FUNCIONES PROPIAS
-from procesamiento.utils import convert_dates_to_iso, limpiar_y_preparar_detalle
+from procesamiento.utils import convert_dates_to_iso, limpiar_y_preparar_detalle, to_excel
 from procesamiento.html.utilsformatoshtml import productonegado_pdf
 #FUNCIONES DE AUTENTICACIÓN
 from auth_logic import protected_post, logout_user, DJANGO_API_BASE
@@ -30,13 +31,6 @@ if not st.session_state.get('logged_in'):
     st.stop()
 
 
-def to_excel(df):
-    """Convierte el DataFrame a un archivo Excel binario."""
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Resumen_Negados')
-    processed_data = output.getvalue()
-    return processed_data
 
 
 def display_summary_report():
@@ -117,7 +111,7 @@ def main():
            
             df_productonegado['cantidad_negada'] = df_productonegado['cantidad_negada'].round(2)
             
-        df_pn_visualizacion = df_productonegado.groupby(["fecha","marca", "producto"])[
+        df_pn_visualizacion = df_productonegado.groupby(["marca", "producto"])[
          ["cantidad_negada","origen", "referencia"]].agg(
                cantidad_negada=("cantidad_negada", "sum"),
                origen=("origen", lambda x: ", ".join(x.unique())),
@@ -152,6 +146,16 @@ def main():
                     file_name='resumen_productonegado.pdf',
                     mime='application/pdf', 
                     help='Descarga el resumen del producto negado'
+                )
+            
+            pdf_excel = to_excel(df_pn_visualizacion, "REPORTE DE NEGADOS - ANÁLISIS DE DATOS")
+            if pdf_data: 
+                st.download_button( 
+                    label="Descargar Resumen a Excel", 
+                    data=pdf_excel,
+                    file_name='resumen_productonegado.xlsx',
+                    mime='application/xlsx', 
+                    help='Descarga el resumen en excel del producto negado'
                 )
         
         # ----------------------------------------------------

@@ -64,7 +64,7 @@ def convert_to_native_types(data):
     return data
 
 
-
+@st.cache_data
 def fetch_filtered_data(fecha_inicio, fecha_fin, origen):
     """Realiza la petición GET protegida con filtros dinámicos."""
     params = {}
@@ -129,6 +129,7 @@ def send_patch_request(original_df, changes):
         
         if response.status_code == 200:
             st.success("🎉 ¡Datos actualizados con éxito! Recargando datos...")
+            fetch_filtered_data.clear()
             st.session_state['run_query'] = True 
             st.rerun() 
         else:

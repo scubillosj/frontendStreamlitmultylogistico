@@ -11,13 +11,13 @@ import requests
 import json
 import plotly.express as px
 #FUNCIONES PROPIAS
-from procesamiento.utils import convert_dates_to_iso, to_excel
-from procesamiento.utilexport import rutaPesodf
+from procesamiento.utils import convert_dates_to_iso, to_excel, pickingPacking, to_excel_agrupado
+from procesamiento.utilexport import rutaPesodf, BultosMasivoConductores
 #FUNCIONES DE AUTENTICACIÓN
 from auth_logic import logout_user
 
 st.set_page_config(page_title="Ruta y Peso", layout="wide") 
-st.title("⚖️ Ruta y Peso")
+st.title("🚗 Conductores")
 
 #La libreria streamlit requiere  de la libreria io para generar los formatos de texto
 if not st.session_state.get('logged_in'):
@@ -82,11 +82,11 @@ def main():
 
   st.set_page_config(layout="wide")
 
-  st.title("📊 Carga y Reporte de agrupación zona y peso")
+  st.title("📊 Carga y Reporte de agrupación conductores")
 
   st.header("Ingresar todas las ordenes a procesar")
 
-  st.subheader("Recuerda que debes exportar PICK MULTY")
+  st.subheader("Recuerda que debes exportar PYTHON CONDUCTORES")
 
   st.caption("el archivo no debe contener titulos ni agrupaciones,verificar que no los tenga")
 
@@ -102,11 +102,16 @@ def main():
     
     #Trasnformación de datos para visualización
     df_zonapeso = rutaPesodf(df_para_envio)
+    # PASO CLAVE: Renombrar las columnas una vez
+    df_bultos_renombrado = pickingPacking(df_para_envio) 
+
+    # PASO CLAVE: Aplicar la lógica de bultos al DataFrame YA RENOMBRADO
+    df_bultos = BultosMasivoConductores(df_bultos_renombrado)
     
     total_clientes = df_zonapeso['Nombre de la empresa a mostrar en la factura'].nunique()
     total_peso = df_zonapeso['Peso Total'].sum()
     
-    st.header("Resumen del Día")
+    st.header("Resumen del Conductor")
     
     col1, col2  = st.columns([1, 1])
     
@@ -128,7 +133,7 @@ def main():
         
     st.dataframe(df_zonapeso, use_container_width=True, hide_index=True)
     
-    col3, col4  = st.columns([3, 1])
+    col3, col4, col5  = st.columns([1, 1, 1])
     with col3: 
          if st.button("Generar estadisticas", type="primary"):
           with st.spinner("Generando reportes ...."):
@@ -142,7 +147,15 @@ def main():
                     mime='application/xlsx', 
                     help='Descarga el resumen en excel del zona peso'
                 )
-
+    with col5:
+     df_bultos2 = to_excel_agrupado(df_bultos, "REPORTE CONDUCTORES")
+     st.download_button( 
+                    label="Descargar Resumen Conductor", 
+                    data=df_bultos2,
+                    file_name='resumen_conductor.xlsx',
+                    mime='application/xlsx', 
+                    help='Descarga el resumen en excel del conductores'
+                )
     
    
        

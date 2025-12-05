@@ -12,7 +12,7 @@ import requests
 from io import BytesIO
 from datetime import datetime
 #FUNCIONES PROPIAS
-from procesamiento.utils import convert_dates_to_iso
+from procesamiento.utils import convert_dates_to_iso, validation_data
 from procesamiento.utilexport import BultosMasivo2, BultosMasivo, Regerospickingmasivo, RegerosSeleccion
 from procesamiento.html.utilsformatoshtml import transformacion_pdf_listado, generate_bultos_masivo2, generate_regueros_zona,pickingmasivo_pdf_listado
 #FUNCIONES DE AUTENTICACIÓN
@@ -60,6 +60,8 @@ def to_excel(df):
     processed_data = output.getvalue()
 
     return processed_data
+
+
 def display_summary_report():
 
     if not st.session_state['latest_summary'].empty:
@@ -74,7 +76,7 @@ def display_summary_report():
 
        
 
-        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+        col1, col2 = st.columns([1, 1])
 
 
                 
@@ -89,20 +91,22 @@ def display_summary_report():
                          }
 
 
-        with col1: 
+        #with col1: 
         
-        # --- BOTONES DE PDF --- #
-        # --- 1. BOTÓN DE BULTOS MASIVO PDF ---
-            dflistadototal = BultosMasivo(df_summary)
-            pdflistadototal = transformacion_pdf_listado(dflistadototal, datos_clave)
-            if pdflistadototal: st.download_button( 
-                         label="🔽 BULTOS MASIVO PDF", 
-                         data=pdflistadototal, 
-                         file_name='bultos_masivo.pdf', 
-                         mime='application/pdf', 
-                         help='Descarga el resumen de bultos masivo en PDF.' 
-                         )
-        with col2: 
+        # # --- BOTONES DE PDF --- #
+        # # --- 1. BOTÓN DE BULTOS MASIVO PDF ---
+        # dflistadototal = BultosMasivo(df_summary)
+        # pdflistadototal = transformacion_pdf_listado(dflistadototal, datos_clave)
+        # if pdflistadototal: st.download_button( 
+        #                              label="🔽 BULTOS MASIVO PDF", 
+        #                              data=pdflistadototal, 
+        #                              file_name='bultos_masivo.pdf', 
+        #                              mime='application/pdf', 
+        #                              help='Descarga el resumen de bultos masivo en PDF.' 
+        #                              )
+        
+        
+        with col1: 
         # --- 2. BOTÓN DE RUTA BULTOS ZONA PDF ---
             dfbultosmasivo= BultosMasivo2(df_summary)
             pdfbultosmasivo= generate_bultos_masivo2(dfbultosmasivo, datos_clave)
@@ -114,7 +118,7 @@ def display_summary_report():
                          help='Descarga el resumen del bultos masivo en PDF.' 
             ) # Corregido: Cierre de paréntesis
         
-        with col3: 
+        with col2: 
         # --- 3. BOTÓN DE RUTA REGUEROS ZONA ---
             dfregueros= RegerosSeleccion(df_summary)
             pdfregueros= generate_regueros_zona(dfregueros, datos_clave)
@@ -126,16 +130,16 @@ def display_summary_report():
                          help='Descarga el resumen del regueros zona en PDF.' 
                          ) 
 
-        with col4: 
-            dfregueros2= Regerospickingmasivo(df_summary)
-            pdfregueros2= pickingmasivo_pdf_listado(dfregueros2, datos_clave)
-            if pdfregueros2: st.download_button( 
-                         label="🔽 REGUEROS MASIVO PDF", 
-                         data=pdfregueros2, 
-                         file_name='resumen_reguerosMASIVO.pdf', 
-                         mime='application/pdf', 
-                         help='Descarga el resumen del regueros MASIVO en PDF.' 
-                         ) 
+        #with col4: 
+            #dfregueros2= Regerospickingmasivo(df_summary)
+            #pdfregueros2= pickingmasivo_pdf_listado(dfregueros2, datos_clave)
+            #if pdfregueros2: st.download_button( 
+                         #label="🔽 REGUEROS MASIVO PDF", 
+                         #data=pdfregueros2, 
+                         #file_name='resumen_reguerosMASIVO.pdf', 
+                         #mime='application/pdf', 
+                         #help='Descarga el resumen del regueros MASIVO en PDF.' 
+                         #) 
         
         info1 = df_summary.groupby(["codigoZona"])[["pesoUnitario","nombreAsociado", "origen"]].agg(
         Peso=("pesoUnitario", "sum"),
@@ -166,6 +170,14 @@ def procesar_picking_packing(api_url):
     if uploaded_file:
         # 1. Lectura y preparación para envío
         df_original = pd.read_excel(uploaded_file)
+        #Revisión de los errores en datos
+        revision_data = validation_data(df_original)
+        
+        if revision_data is None:
+           st.success("Los datos no contienen errores continuar carga")
+        else: 
+           st.warning(revision_data)
+        
         df_para_envio = convert_dates_to_iso(df_original.copy())
         df_para_envio = df_para_envio.replace({np.nan: NAN_PLACEHOLDER})
         data_to_send = df_para_envio.to_dict(orient='records')
