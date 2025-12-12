@@ -7,7 +7,7 @@ from requests.exceptions import RequestException
 from datetime import date, datetime
 
 # === CONFIGURACIÓN ===
-DJANGO_API_BASE = "https://backenddjangologisticaapp.onrender.com/api/"
+DJANGO_API_BASE = "https://multy-logisticaapp-z5y3m.ondigitalocean.app/api/"
 LOGIN_URL = DJANGO_API_BASE + "auth/jwt/create/"
 REFRESH_URL = DJANGO_API_BASE + "auth/jwt/refresh/"
 REGISTER_URL = DJANGO_API_BASE + "register/users/"

@@ -249,7 +249,7 @@ def RegerosSeleccion(df_crudo: pd.DataFrame) -> pd.DataFrame:
     df_regueros = df_filtrado.groupby(
         by=["codigoZona", "zona", "origen", "marca","producto"]
     ).agg(
-        Unidades_faltantes=("unidades", "sum")
+        Unidades=("unidades", "sum")
     ).reset_index() 
         
     return df_regueros

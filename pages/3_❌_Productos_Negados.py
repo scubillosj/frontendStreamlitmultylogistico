@@ -14,7 +14,7 @@ from io import BytesIO
 from datetime import datetime
 #FUNCIONES PROPIAS
 from procesamiento.utils import convert_dates_to_iso, limpiar_y_preparar_detalle, to_excel
-from procesamiento.html.utilsformatoshtml import productonegado_pdf
+
 #FUNCIONES DE AUTENTICACIÓN
 from auth_logic import protected_post, logout_user, DJANGO_API_BASE
 # Constante que usaremos como placeholder en lugar de NaN para la serialización
@@ -137,19 +137,9 @@ def main():
                 "zona": df_productonegado['zona'].iloc[0] if 'zona' in df_productonegado.columns else "N/A", 
             }
             
-            # Botón de PDF 
-            pdf_data = productonegado_pdf(df_pn_visualizacion, datos_clave)
-            if pdf_data: 
-                st.download_button( 
-                    label="Descargar Resumen a PDF", 
-                    data=pdf_data,
-                    file_name='resumen_productonegado.pdf',
-                    mime='application/pdf', 
-                    help='Descarga el resumen del producto negado'
-                )
-            
+            # Botón de excel 
             pdf_excel = to_excel(df_pn_visualizacion, "REPORTE DE NEGADOS - ANÁLISIS DE DATOS")
-            if pdf_data: 
+            if pdf_excel: 
                 st.download_button( 
                     label="Descargar Resumen a Excel", 
                     data=pdf_excel,
