@@ -141,8 +141,8 @@ def categorize_conductor(conductor):
         return 'TRANSPORTADORA'
     elif 'agencia' in conductor:
         return 'AGENCIAS'
-    elif 'fernando' in conductor:
-        return 'FERNANDO'
+    elif 'juan bernal' in conductor:
+        return 'JUAN BERNAL'
     else:
         return ''
 
