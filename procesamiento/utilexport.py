@@ -125,8 +125,8 @@ def categorize_conductor(conductor):
         return 'SANTIAGO'
     elif 'edgar' in conductor:
         return 'EDGAR'
-    elif 'david' in conductor:
-        return 'DAVID'
+    elif 'juan david' in conductor:
+        return 'JUAN DAVID'
     elif 'jesus' in conductor:
         return 'DARIO'
     elif 'dario' in conductor:
@@ -135,8 +135,8 @@ def categorize_conductor(conductor):
         return 'PELIGRO'
     elif 'fabio' in conductor:
         return 'FABIO'
-    elif 'stiven' in conductor:
-        return 'DAVID'
+    elif 'samuel' in conductor:
+        return 'SAMUEL'
     elif 'transportadora' in conductor:
         return 'TRANSPORTADORA'
     elif 'agencia' in conductor:
