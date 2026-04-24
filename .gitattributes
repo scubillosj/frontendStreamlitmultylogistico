@@ -1,0 +1,2 @@
+# Scripts usados en Linux/Docker (evita CRLF que rompe shebang/entrypoint en contenedores)
+backend/docker-entrypoint.sh text eol=lf

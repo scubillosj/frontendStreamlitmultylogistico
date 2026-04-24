@@ -1,0 +1,61 @@
+# Stack principal: db + redis + backend (Django).
+#
+# Uso habitual:
+#   docker compose up -d --build
+#
+# DEBUG (en backend/.env):
+#   DEBUG=True  → el entrypoint ejecuta migrate + Tailwind/collectstatic al iniciar (desarrollo).
+#   DEBUG=False → por defecto NO ejecuta migrate ni build de assets (producción / CI ya aplicó migraciones).
+#   Siempre puedes forzar con MIGRATE_ON_START=1 y/o BUILD_ASSETS_ON_START=1 aunque DEBUG=False.
+#
+# No fijamos DEBUG aquí: lo define ./backend/.env (env_file del servicio backend).
+#
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=multy_db
+      - POSTGRES_USER=multy_user
+      - POSTGRES_PASSWORD=multy_pass
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U multy_user -d multy_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    # DATABASE_URL del .env (p. ej. Render) queda anulado: en Docker usamos la Postgres del servicio db.
+    environment:
+      - DATABASE_URL=postgres://multy_user:multy_pass@db:5432/multy_db
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend,host.docker.internal
+      - REDIS_URL=redis://redis:6379/1
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
